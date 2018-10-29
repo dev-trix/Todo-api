@@ -13,10 +13,26 @@ app.get("/", function(req, res) {
   res.send("TODO API ROOT");
 });
 
-// Get /todos
-
+// Get /todos?completed=true
 app.get("/todos", function(req, res) {
-  res.json(todos);
+  var queryParams = req.query;
+  var filteredTodos = todos;
+
+  if (
+    queryParams.hasOwnProperty("completed") &&
+    queryParams.completed === "true"
+  ) {
+    filteredTodos = _.where(filteredTodos, { completed: true });
+    res.json(filteredTodos);
+  } else if (
+    queryParams.hasOwnProperty("completed") &&
+    queryParams.completed === "false"
+  ) {
+    filteredTodos = _.where(filteredTodos, { completed: false });
+    res.json(filteredTodos);
+  }
+
+  // res.json(filteredTodos);
 });
 
 // Get /todos/:id
@@ -65,7 +81,6 @@ app.post("/todos", function(req, res) {
   res.json(body);
 });
 
-
 //DELETE /todos/:id
 app.delete("/todos/:id", function(req, res) {
   var todoId = parseInt(req.params.id, 10);
@@ -85,7 +100,7 @@ app.put("/todos/:id", function(req, res) {
   var body = _.pick(req.body, "description", "completed");
   var validAttributes = {};
 
-  if (!matchedTodo){
+  if (!matchedTodo) {
     return res.status(404).send();
   }
 
